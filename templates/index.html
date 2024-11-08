@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>easy-Todo App</title>
+    </head>
+    <body>
+        {{ if not .LoggedIn }}
+        <h1>Login</h1>
+        <form action="/login" method="post">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        {{ else }}
+        <h1>Приветствую, {{.Username}}</h1>
+        <a href="/logout">Logout</a>
+
+        {{ if eq .Role "senior" }} 
+        <form action="/add" method="post">
+            <label>Добавить задачу</label>
+            <input type="text" name="Text" required>
+            <label>Приоритет</label>
+            <input type="number" name="Priority" min="1" max="5" required>
+            <input type="hidden" name="Done" value="false">
+            <button type="submit">Добавить</button>
+        </form>
+        {{ else}}
+        <p>У вас нет доступа к добавлению задач</p>
+        {{ end }}
+
+        <h2>Список задач</h2>
+        <table>
+            <thead><th>Название задачи /</th><th> Приоритет/ </th><th> Выполнено </th></thead>
+            {{range $index, $todo :=.todos }}
+            <tr>
+                {{if $todo.Done}}
+                    <td style="text-decoration:line-through;">{{.Text}}</td>
+                    <td>{{.Priority}}</td>
+                    <td>
+                        <form action="/toggle" method="post" style="display:inline;">
+                            <input type="hidden" name="index" value="{{ $index }}">
+                            <input type="checkbox" {{ if $todo.Done }}checked{{ end }} onchange="this.form.submit()">
+                        </form>
+                    </td>
+                {{else}}
+                    <td>{{.Text}}</td>
+                    <td>{{.Priority}}</td>
+                    <td>
+                        <form action="/toggle" method="post" style="display:inline;">
+                            <input type="hidden" name="index" value="{{ $index }}">
+                            <input type="checkbox" {{ if $todo.Done }}checked{{ end }} onchange="this.form.submit()">
+                        </form>
+                    </td>
+                {{end}}
+            </tr>
+            {{end}}
+        </table>
+        {{ end }}
+    </body>
+</html>
